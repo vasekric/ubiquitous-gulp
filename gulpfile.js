@@ -38,17 +38,24 @@ function compileLess() {
             paths: [ path.join(__dirname, 'less', 'includes') ],
             plugins: [autoprefix]
         }))
+        .on("error", handleError)
         .pipe(concat('style.css'))
         .pipe(gulp.dest(cssOutput))
         .pipe(minifyCss())
+        .pipe(concat('style.min.css'))
         .pipe(gulp.dest(cssOutput))
-        .pipe(connect.reload());
+        .pipe(connect.reload())
 }
 function watchLess() {
     compileLess();
     gulp.watch(lessFiles, ['less']);
 }
 function watch() {
+    compileLess();
     gulp.watch([htmlFiles], ['html']);
     gulp.watch([lessFiles], ['less']);
+}
+function handleError(err) {
+    console.log(err);
+    this.emit('end');
 }
