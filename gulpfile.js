@@ -6,7 +6,7 @@ var path = require('path');
 var concat = require('gulp-concat');
 var minifyCss = require('gulp-minify-css');
 var LessPluginAutoPrefix = require('less-plugin-autoprefix');
-var autoprefix= new LessPluginAutoPrefix({ browsers: ["last 2 versions"] });
+var autoprefix = new LessPluginAutoPrefix({browsers: ["last 3 versions"]});
 var connect = require('gulp-connect');
 
 // ↓ ↓ ↓ ↓ CUSTOMIZABLE PROPERTIES ↓ ↓ ↓ ↓
@@ -18,30 +18,23 @@ var htmlFiles = './templates/html/*.html';
 gulp.task('less', compileLess);
 gulp.task('watch-less', watchLess);
 gulp.task('watch', watch);
-gulp.task('server', function() {
-    connect.server({
-        root: ['templates/html', 'templates'],
-        port: 8001,
-        livereload: true
-    });
-    watch();
-});
-gulp.task('html', function () {
-    gulp.src(htmlFiles)
-        .pipe(connect.reload());
-});
+gulp.task('server', server);
+gulp.task('html', html);
 
-// ↓ ↓ ↓ ↓ FUNCTIONS FOR GULP TASKS ↓ ↓ ↓ ↓
+// ↓ ↓ ↓ ↓ FUNCTIONS USED BY GULP TASKS ↓ ↓ ↓ ↓
 function compileLess() {
     return gulp.src(lessFiles)
         .pipe(less({
-            paths: [ path.join(__dirname, 'less', 'includes') ],
+            paths: [path.join(__dirname, 'less', 'includes')],
             plugins: [autoprefix]
         }))
         .on("error", handleError)
         .pipe(concat('style.css'))
         .pipe(gulp.dest(cssOutput))
-        .pipe(minifyCss())
+        .pipe(minifyCss({
+            advanced: true,
+
+        }))
         .pipe(concat('style.min.css'))
         .pipe(gulp.dest(cssOutput))
         .pipe(connect.reload())
@@ -54,6 +47,18 @@ function watch() {
     compileLess();
     gulp.watch([htmlFiles], ['html']);
     gulp.watch([lessFiles], ['less']);
+}
+function html() {
+    gulp.src(htmlFiles)
+        .pipe(connect.reload());
+}
+function server() {
+    connect.server({
+        root: ['templates/html', 'templates'],
+        port: 8001,
+        livereload: true
+    });
+    watch();
 }
 function handleError(err) {
     console.log(err);
