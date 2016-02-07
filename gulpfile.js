@@ -13,6 +13,7 @@ var connect = require('gulp-connect');
 var lessFiles = './templates/css/src/**/*.less';
 var cssOutput = './templates/css/build/';
 var htmlFiles = './templates/html/*.html';
+var jsFiles = './templates/js/*.js';
 
 // ↓ ↓ ↓ ↓ DEFINED GULP TASKS ↓ ↓ ↓ ↓
 gulp.task('less', compileLess);
@@ -20,6 +21,7 @@ gulp.task('watch-less', watchLess);
 gulp.task('watch', watch);
 gulp.task('server', server);
 gulp.task('html', html);
+gulp.task('js', js);
 
 // ↓ ↓ ↓ ↓ FUNCTIONS USED BY GULP TASKS ↓ ↓ ↓ ↓
 function compileLess() {
@@ -47,9 +49,14 @@ function watch() {
     compileLess();
     gulp.watch([htmlFiles], ['html']);
     gulp.watch([lessFiles], ['less']);
+    gulp.watch([lessFiles], ['js']);
 }
 function html() {
     gulp.src(htmlFiles)
+        .pipe(connect.reload());
+}
+function js() {
+    gulp.src(jsFiles)
         .pipe(connect.reload());
 }
 function server() {
